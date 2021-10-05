@@ -85,7 +85,7 @@ def main():
         "Compressed size {:.1f}".format(size_compress/1024))
     decomp = decompress_image(pack)
 
-    fig = plt.figure(figsize=(12, 3))
+    fig = plt.figure(figsize=(6, 5))
 
     h,l,s = 210, 100, 64
 
