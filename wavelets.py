@@ -1,4 +1,5 @@
 # Minimal working example of image compression with wavelets.
+# Compression works by dropping frecuencies that are near zero.
 # Coded this while drunk, no quality assurances. Do whatever you want with it.
 
 # I scimmed following paper to get some grasp what wavelets are
@@ -19,6 +20,7 @@ def compress_image(image, crop_data_fraction=0.1):
     # Compress black and white image with wavelets
 
     def reduce_to_fraction_of_indices(matrix_2d, crop_to_fraction):
+        # Drop those wave packet indices that are near to zero.
         # max image resolution is 65 535 due to the uint16
         ids_of_sorted = np.argsort(matrix_2d.flat)
         l = int(len(ids_of_sorted) * crop_data_fraction / 2)
