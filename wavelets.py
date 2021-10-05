@@ -65,7 +65,6 @@ def decompress_image(pack):
         hori = construct_from_indices(hori_pack)
         vert = construct_from_indices(vert_pack)
         diag = construct_from_indices(diag_pack)
-        print("Depacking", hori.shape)
         coeffs.append((hori, vert, diag))
 
     constructed_image = pywt.waverec2(coeffs, 'bior2.6')
