@@ -2,7 +2,9 @@
 # Compression works by dropping frecuencies that are near zero.
 # Coded this while drunk, no quality assurances. Do whatever you want with it.
 
-# I scimmed following paper to get some grasp what wavelets are
+# I scimmed following sources to get some grasp what wavelets are
+# https://pywavelets.readthedocs.io/en/latest/index.html
+# https://dsp.stackexchange.com/questions/10675/difference-between-a-wavelet-transform-and-a-wavelet-decomposition
 # https://mil.ufl.edu/nechyba/www/eel6562/course_materials/t5.wavelets/intro_dwt.pdf
 
 # Documentation of 2d-wavelets with PyWavelets
@@ -15,6 +17,8 @@ import matplotlib.pyplot as plt
 import pywt  # pip3 install PyWavelets
 import pywt.data
 
+wavelet = 'bior2.6'
+# Some source said that bior2.6 mother wavelet is the best for compression
 
 def compress_image(image, crop_data_fraction=0.1):
     # Compress black and white image with wavelets
@@ -24,20 +28,19 @@ def compress_image(image, crop_data_fraction=0.1):
         # max image resolution is 65 535 due to the uint16
         flat = matrix_2d.flatten()
         ids_of_sorted = np.argsort(flat)
-        l = int(len(ids_of_sorted) * crop_data_fraction / 2)
+        l = int(len(ids_of_sorted) * (crop_data_fraction / 2))
         low_bound = flat[ids_of_sorted[l]]
         high_bound = flat[ids_of_sorted[-l]]
-        ids = np.nonzero(np.logical_or(
+        nonzero_wavelets = np.logical_or(
             flat > high_bound,
             flat < low_bound
-        ))
-        ids = ids[0].astype(np.uint32)
-        values = flat[ids].astype(np.float16)
-        return (ids, values, matrix_2d.shape)
+        )
+        bitpack = np.packbits(nonzero_wavelets)
+        values = flat[nonzero_wavelets].astype(np.float16)
+        return (bitpack, values, matrix_2d.shape)
 
     compression_size = 0
-    # Some source said that bior2.6 mother wavelet
-    coeffs = pywt.wavedec2(image, 'bior2.6')
+    coeffs = pywt.wavedec2(image, wavelet)
     packed_coeffs = [coeffs[0]]
     compression_size += size(coeffs[0])
     # i iterates through pixel frequencies with power of 2
@@ -48,18 +51,16 @@ def compress_image(image, crop_data_fraction=0.1):
         diag_pack = reduce_to_fraction_of_indices(diag, crop_data_fraction)
         packed_coeffs.append((hori_pack, vert_pack, diag_pack))
 
-        # Calculate byte size of tuples above. Shape is 16=2*size(uint)
-        compression_size += size(hori_pack[0]) + size(hori_pack[1] + 16)
-        compression_size += size(vert_pack[0]) + size(vert_pack[1] + 16)
-        compression_size += size(diag_pack[0]) + size(diag_pack[1] + 16)
+        compression_size += 3*(size(hori_pack[0]) + size(hori_pack[1] + 16))
     return (packed_coeffs, image.shape), compression_size
 
 def decompress_image(pack):
     # Decompress black and white image with wavelets
     def construct_from_indices(pack):
-        ids, values, shape = pack
+        bitpack, values, shape = pack
         flat = np.zeros(shape[0]*shape[1])
-        flat[ids] = values
+        nonzero_wavelets = np.unpackbits(bitpack, count=len(flat))
+        flat[np.nonzero(nonzero_wavelets)] = values
         mat = np.reshape(flat, shape)
         return mat
 
@@ -74,7 +75,7 @@ def decompress_image(pack):
         diag = construct_from_indices(diag_pack)
         coeffs.append((hori, vert, diag))
 
-    constructed_image = pywt.waverec2(coeffs, 'bior2.6')
+    constructed_image = pywt.waverec2(coeffs, wavelet)
     constructed_image = np.clip(constructed_image, 0, 255)
     return constructed_image
 
@@ -86,6 +87,7 @@ def main():
     # Load image
     original = pywt.data.camera()
 
+    # Lower values of crop_data_fraction means greater compression
     pack, size_compress = compress_image(original, crop_data_fraction=0.15)
     print(
         "Original size {:.1f}, ".format(size(original)/1024),
