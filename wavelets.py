@@ -22,13 +22,17 @@ def compress_image(image, crop_data_fraction=0.1):
     def reduce_to_fraction_of_indices(matrix_2d, crop_to_fraction):
         # Drop those wave packet indices that are near to zero.
         # max image resolution is 65 535 due to the uint16
-        ids_of_sorted = np.argsort(matrix_2d.flat)
+        flat = matrix_2d.flatten()
+        ids_of_sorted = np.argsort(flat)
         l = int(len(ids_of_sorted) * crop_data_fraction / 2)
-        low_bound = matrix_2d.flat[ids_of_sorted[l]]
-        high_bound = matrix_2d.flat[ids_of_sorted[-l]]
-        ids = np.nonzero(np.logical_or(matrix_2d > high_bound, matrix_2d < low_bound))
-        ids = (ids[0].astype(np.uint16), ids[1].astype(np.uint16))
-        values = matrix_2d[ids].astype(np.float16)
+        low_bound = flat[ids_of_sorted[l]]
+        high_bound = flat[ids_of_sorted[-l]]
+        ids = np.nonzero(np.logical_or(
+            flat > high_bound,
+            flat < low_bound
+        ))
+        ids = ids[0].astype(np.uint32)
+        values = flat[ids].astype(np.float16)
         return (ids, values, matrix_2d.shape)
 
     compression_size = 0
@@ -45,17 +49,18 @@ def compress_image(image, crop_data_fraction=0.1):
         packed_coeffs.append((hori_pack, vert_pack, diag_pack))
 
         # Calculate byte size of tuples above. Shape is 16=2*size(uint)
-        compression_size += size(hori_pack[0][0])*2 + size(hori_pack[1] + 16)
-        compression_size += size(vert_pack[0][0])*2 + size(vert_pack[1] + 16)
-        compression_size += size(diag_pack[0][0])*2 + size(diag_pack[1] + 16)
+        compression_size += size(hori_pack[0]) + size(hori_pack[1] + 16)
+        compression_size += size(vert_pack[0]) + size(vert_pack[1] + 16)
+        compression_size += size(diag_pack[0]) + size(diag_pack[1] + 16)
     return (packed_coeffs, image.shape), compression_size
 
 def decompress_image(pack):
     # Decompress black and white image with wavelets
     def construct_from_indices(pack):
         ids, values, shape = pack
-        mat = np.zeros(shape)
-        mat[ids] = values
+        flat = np.zeros(shape[0]*shape[1])
+        flat[ids] = values
+        mat = np.reshape(flat, shape)
         return mat
 
     packed_coeffs, shape = pack
@@ -81,7 +86,7 @@ def main():
     # Load image
     original = pywt.data.camera()
 
-    pack, size_compress = compress_image(original, crop_data_fraction=0.08)
+    pack, size_compress = compress_image(original, crop_data_fraction=0.15)
     print(
         "Original size {:.1f}, ".format(size(original)/1024),
         "Compressed size {:.1f}".format(size_compress/1024))
