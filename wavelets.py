@@ -1,5 +1,6 @@
 # Minimal working example of image compression with wavelets.
 # Compression works by dropping frecuencies that are near zero.
+# This is not based on any course or assignment on university, just curiosity.
 # Coded this while drunk, no quality assurances. Do whatever you want with it.
 
 # I scimmed following sources to get some grasp what wavelets are
@@ -17,10 +18,10 @@ import matplotlib.pyplot as plt
 import pywt  # pip3 install PyWavelets
 import pywt.data
 
-wavelet = 'bior2.6'
 # Some source said that bior2.6 mother wavelet is the best for compression
+wavelet = 'bior2.6'
 
-def compress_image(image, crop_data_fraction=0.1):
+def compress_image(image, crop_data_fraction=0.15):
     # Compress black and white image with wavelets
 
     def reduce_to_fraction_of_indices(matrix_2d, crop_to_fraction):
@@ -95,6 +96,7 @@ def main():
     decomp = decompress_image(pack)
 
     fig = plt.figure(figsize=(6, 5))
+    fig.suptitle("Dropping wavelets below weakest 85% presentile")
 
     h,l,s = 210, 100, 64
 
