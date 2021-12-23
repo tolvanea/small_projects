@@ -13,3 +13,7 @@ Minimal working example of image compression with wavelet decomposotion. Unlike 
 Generates cloud-like noise texture using deconvolution of Laplace kernel. This is an interesting phenomenon, as Laplace kernel is almost like a sharpen-kernel, but it normalizes to 0 instead of 1. So we get cloud texture by inversely applying edge detection. What? Why? By intuition I would have predicted that somewhat de-sharpening results somewhat blurring. By the way, this is highly inefficient way to generate cloud texture, as it uses linear equation solver, which has complexity of O(n³), where n is number of pixels in the whole image.
 
 ![laplace_noise](laplace_noise.png)
+
+## quines
+Quine is a program that prints its source code, without reading it from the source-file. It is a nice challenge/puzzle, as one must use some tricks to make source code match the printed output. The `quines`-directory contains few Rust and Python implementations that I have written from scratch over the years.
+
