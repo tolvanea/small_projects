@@ -10,7 +10,7 @@ Minimal working example of image compression with wavelet decomposotion. Unlike 
 ![wavelets](wavelets.png)
 
 ## laplace_noise.py
-Generates cloud-like noise texture using deconvolution of Laplace kernel. This is an interesting phenomenon, as Laplace kernel is almost like a sharpen-kernel, but it normalizes to 0 instead of 1. So we get cloud texture by inversely applying edge detection. What? Why? By intuition I would have predicted that somewhat de-sharpening results somewhat blurring. By the way, this is highly inefficient way to generate cloud texture, as it uses linear equation solver, which has complexity of O(n³), where n is number of pixels in the whole image.
+Generates cloud-like noise texture using deconvolution of Laplace kernel. This is an interesting phenomenon, as Laplace kernel is almost like a sharpen-kernel, but it normalizes to 0 instead of 1. So we get cloud texture by inversely applying edge detection. What? Why? By intuition I would have predicted that somewhat-desharpening results somewhat-blurring. By the way, this is highly inefficient way to generate cloud texture, as it uses linear equation solver, which has complexity of O(n³), where n is total number of pixels in the image.
 
 ![laplace_noise](laplace_noise.png)
 
