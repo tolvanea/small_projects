@@ -1,5 +1,5 @@
 # small_projects
-Random one-file self-contained codes that don't deserve own repo.
+Random one-file self-contained projects that don't deserve own repo.
 
 ## hamming.py
 Miniman working example of Hamming error correction. It can fix one bit flip errors and it can alert (but not fix) two bit flip erros. It is mathematically optimal solution for single bit flip errors. But most importantly it is damn simple and beautiful algorithm! For elegant and intuitive description, see [this YouTube video](https://www.youtube.com/watch?v=b3NxrZOu_CE).
