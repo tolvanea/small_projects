@@ -17,3 +17,7 @@ Generates cloud-like noise texture using deconvolution of Laplace kernel. This i
 ## quines
 Quine is a program that prints its source code, without reading it from the source-file. It is a nice challenge/puzzle, as one must use some tricks to make source code match the printed output. The `quines`-directory contains few Rust and Python implementations that I have written from scratch over the years.
 
+## random_path.py
+An algorithm I came by to draw a random path between two points. This generates a fractal curve that looks a bit like electric shock. I made this algorithm for terrain generation of my friend's game, where he was looking for ways to generate roads and paths in the forest. The algorithm is based on mid-point algorithm, which is used our research group's (path integral) quantum simulation software.
+
+![random_path](random_path.png)
